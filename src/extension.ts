@@ -2,11 +2,10 @@ import * as vscode from 'vscode';
 import { IniParser } from './iniPerser';
 
 export function activate(context: vscode.ExtensionContext) {
-	console.log('Congratulations, your extension "ark-ini-editor" is now active!');
   
-	//arksettings
-	const akrsettingsDisposable = vscode.commands.registerCommand('ark-ini-editor.arkSettings', () => {
-		vscode.window.showInformationMessage('Hello World from ark-ini-editor!');
+    // arksettings
+    const akrsettingsDisposable = vscode.commands.registerCommand('ark-ini-editor.arkSettings', () => {
+        vscode.window.showInformationMessage('ark-ini-editor! Activated!');
 
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
@@ -40,20 +39,28 @@ export function activate(context: vscode.ExtensionContext) {
     // Parse the ini file
     const document = editor.document;
     const text = document.getText();
-    const iniPerser = new IniParser(fileName, text);
+    let iniPerser = new IniParser(fileName, text);
 
     // Set the webview content
     panel.webview.html = getWebviewContent(styleUri, scriptUri);
 
-    // Send initial data to the webview
+    // ハンドラーで "ready" を待つ
     panel.webview.onDidReceiveMessage(async (message) => {
-      console.log('extention-debug: message received in webview: ', message);//debug
 
-      if (message.command === 'bAllowUnlimitedRespecs') {
+      if (message.command === 'ready') {
+        // React側からの準備完了通知を受けたら、initメッセージを送信
+        panel.webview.postMessage({
+          command: 'init',
+          data: {
+            fileName: iniPerser.getFileName(),
+            settings: iniPerser.getAllSettingsText()
+          }
+        });
+      } else if (message.command === 'updateIni') {
         const value = message.value;
-
-        // bAllowUnlimitedRespecs の値を更新または追加
-        iniPerser.setValue('/script/shootergame.shootergamemode', 'bAllowUnlimitedRespecs', value as string);
+        if(value){
+          iniPerser = new IniParser(fileName, value);
+        }
 
         // 更新内容を保存
         const editedText = iniPerser.getAllSettingsText();
@@ -65,14 +72,12 @@ export function activate(context: vscode.ExtensionContext) {
         edit.replace(document.uri, fullRange, editedText);
         await vscode.workspace.applyEdit(edit);
         
-        vscode.window.showInformationMessage(`bAllowUnlimitedRespecs=${value} に更新しました`);
-
-
+        vscode.window.showInformationMessage(`Updated ${fileName} successfully!`);
       }
     });
 
-	});
-	context.subscriptions.push(akrsettingsDisposable);
+    });
+    context.subscriptions.push(akrsettingsDisposable);
 
 }
 
