@@ -1,6 +1,7 @@
 interface IniEntry {
     key: string;
     value: number | boolean | string;
+    raw?: string; // 元の値の文字列表現を保持する
 }
 
 export class IniParser {
@@ -43,8 +44,8 @@ export class IniParser {
         } else {
           value = rawValue;
         }
-        // 重複項目もそのまま保持
-        this.data.get(currentSection)!.push({ key: rawKey, value });
+        // 読み込んだ文字列（元の表現）も保持する
+        this.data.get(currentSection)!.push({ key: rawKey, value, raw: rawValue });
       }
     });
   }
@@ -93,6 +94,8 @@ export class IniParser {
     for (let entry of entries) {
       if (entry.key === key) {
         entry.value = value;
+        // 更新時は元のフォーマット情報はなくなる
+        delete entry.raw;
         updated = true;
       }
     }
@@ -113,7 +116,15 @@ export class IniParser {
     this.data.forEach((entries, section) => {
       result += `[${section}]\n`;
       entries.forEach((entry) => {
-        result += `${entry.key}=${entry.value}\n`;
+        let valueText: string;
+        if (entry.raw !== undefined) {
+          valueText = entry.raw;
+        } else if (typeof entry.value === 'boolean') {
+          valueText = entry.value ? 'True' : 'False';
+        } else {
+          valueText = entry.value.toString();
+        }
+        result += `${entry.key}=${valueText}\n`;
       });
       result += `\n`;
     });
