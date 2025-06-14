@@ -3,13 +3,6 @@ import { IniParser } from './iniPerser';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "ark-ini-editor" is now active!');
-
-	//helloworld
-	const disposable = vscode.commands.registerCommand('ark-ini-editor.helloWorld', () => {
-		vscode.window.showInformationMessage('Hello World from ark-ini-editor!');
-	});
-	context.subscriptions.push(disposable);
-
   
 	//arksettings
 	const akrsettingsDisposable = vscode.commands.registerCommand('ark-ini-editor.arkSettings', () => {

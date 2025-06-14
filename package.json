@@ -14,10 +14,6 @@
   "contributes": {
     "commands": [
       {
-        "command": "ark-ini-editor.helloWorld",
-        "title": "Hello World - ARK INI Editor"
-      },
-      {
         "command": "ark-ini-editor.arkSettings",
         "title": "Edit Game.ini and GameUserSettings.ini in GUI for ARK Survival Evolved."
       }
