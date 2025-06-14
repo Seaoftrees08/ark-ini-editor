@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
         const value = message.value;
 
         // bAllowUnlimitedRespecs の値を更新または追加
-        iniPerser.setValue('ServerSettings', 'bAllowUnlimitedRespecs', value as string);
+        iniPerser.setValue('/script/shootergame.shootergamemode', 'bAllowUnlimitedRespecs', value as string);
 
         // 更新内容を保存
         const editedText = iniPerser.getAllSettingsText();
