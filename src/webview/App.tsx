@@ -43,7 +43,7 @@ const App = () => {
     }
   };
 
-    const numbericHandleChange = (section: string, key: string, newValue: string) => {
+    const textHandleChange = (section: string, key: string, newValue: string) => {
     if (iniData) {
       iniData.setValue(section, key, newValue);
       setIniData(iniData);
@@ -64,13 +64,13 @@ const App = () => {
           <Game 
             iniData={iniData}
             checkBoxHandleChange={checkBoxHandleChange}
-            numericHandleChange={numbericHandleChange}
+            textHandleChange={textHandleChange}
           />
         ) : iniData && iniData.getFileName().toLowerCase().endsWith("gameusersettings.ini") ? (
           <GameUserSettings
             iniData={iniData}
             checkBoxHandleChange={checkBoxHandleChange}
-            numericHandleChange={numbericHandleChange}
+            textHandleChange={textHandleChange}
           />
         ) : (
           <div>

@@ -6,10 +6,10 @@ import Numeric from "./Numeric";
 export interface GameProps {
     iniData: IniParser | undefined;
     checkBoxHandleChange: (section: string, key: string, newValue: boolean) => void;
-    numericHandleChange: (section: string, key: string, newValue: string) => void;
+    textHandleChange: (section: string, key: string, newValue: string) => void;
 }
 
-const Game: React.FC<GameProps> = ({ iniData, checkBoxHandleChange, numericHandleChange }) => {
+const Game: React.FC<GameProps> = ({ iniData, checkBoxHandleChange, textHandleChange }) => {
     return (
         <div>
             <h2>ARK Settings Game.ini</h2>
@@ -30,7 +30,7 @@ const Game: React.FC<GameProps> = ({ iniData, checkBoxHandleChange, numericHandl
                     if (iniData) {
                         // 数値の文字列表現をそのまま保持
                         iniData.setValue(section, key, newValue);
-                        numericHandleChange(section, key, newValue);
+                        textHandleChange(section, key, newValue);
                     }
                 }}
                 description="プレイヤーの体力の増加量を設定します。0は無効、1はデフォルト値です。4.0は4倍の増加を意味します。"

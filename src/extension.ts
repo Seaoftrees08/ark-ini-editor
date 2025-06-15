@@ -3,21 +3,22 @@ import { IniParser } from './iniPerser';
 
 export function activate(context: vscode.ExtensionContext) {
   
+    // 最後にアクティブだったエディターを保持する変数
+    let lastActiveEditor = vscode.window.activeTextEditor;
+
     // arksettings
     const akrsettingsDisposable = vscode.commands.registerCommand('ark-ini-editor.arkSettings', () => {
         vscode.window.showInformationMessage('ark-ini-editor! Activated!');
 
-        const editor = vscode.window.activeTextEditor;
+        let editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showWarningMessage('File is not open, please open Game.ini or GameUserSettings.ini.');
           return;
         }
 
-        // const filePath = editor.document.fileName;
-        // if (!(filePath.toLowerCase().endsWith('game.ini') || filePath.toLowerCase().endsWith('gameusersettings.ini'))) {
-        //   vscode.window.showWarningMessage('This command can only be executed when Game.ini or GameUserSettings.ini is open.');
-        //   return;
-        // }
+        // 初期状態で最後のエディターとして設定
+        lastActiveEditor = editor;
+
         const fileName = editor.document.fileName.split(/[\\/]/).pop() || '';
 
         const panel = vscode.window.createWebviewPanel(
@@ -44,11 +45,9 @@ export function activate(context: vscode.ExtensionContext) {
         // Set the webview content
         panel.webview.html = getWebviewContent(styleUri, scriptUri);
 
-        // ハンドラーで "ready" を待つ
+        // Webview からのメッセージ受信
         panel.webview.onDidReceiveMessage(async (message) => {
-
           if (message.command === 'ready') {
-            // React側からの準備完了通知を受けたら、initメッセージを送信
             panel.webview.postMessage({
               command: 'init',
               data: {
@@ -58,27 +57,32 @@ export function activate(context: vscode.ExtensionContext) {
             });
           } else if (message.command === 'updateIni') {
             const value = message.value;
-            if(value){
-              iniPerser = new IniParser(fileName, value);
+            // 最後にアクティブだったエディターを使用
+            if (!lastActiveEditor) {
+              vscode.window.showErrorMessage('最後にアクティブだったエディターが見つかりません。');
+              return;
             }
-
-            // 更新内容を保存
+            const currentDocument = lastActiveEditor.document;
+            const currentFileName = currentDocument.fileName.split(/[\\/]/).pop() || '';
+            if (value) {
+              iniPerser = new IniParser(currentFileName, value);
+            }
             const editedText = iniPerser.getAllSettingsText();
             const edit = new vscode.WorkspaceEdit();
             const fullRange = new vscode.Range(
-              document.lineAt(0).range.start,
-              document.lineAt(document.lineCount - 1).range.end
+              currentDocument.lineAt(0).range.start,
+              currentDocument.lineAt(currentDocument.lineCount - 1).range.end
             );
-            edit.replace(document.uri, fullRange, editedText);
+            edit.replace(currentDocument.uri, fullRange, editedText);
             await vscode.workspace.applyEdit(edit);
-            
-            // vscode.window.showInformationMessage(`Updated ${fileName} successfully!`);
           }
         });
 
-        // アクティブエディターが変わった時のリスナー
+        // エディターが変わったときのリスナー
         const activeEditorListener = vscode.window.onDidChangeActiveTextEditor((newEditor) => {
-          if (newEditor) {
+          // Webview は対象外にするため、uri.scheme で判定
+          if (newEditor && newEditor.document.uri.scheme !== 'vscode-webview') {
+            lastActiveEditor = newEditor;
             const newFilePath = newEditor.document.fileName;
             const newFileName = newFilePath.split(/[\\/]/).pop() || '';
             const newText = newEditor.document.getText();
@@ -94,13 +98,13 @@ export function activate(context: vscode.ExtensionContext) {
         });
         context.subscriptions.push(activeEditorListener);
 
-        // iniファイルが手動で保存された際にiniPerserを再生成するリスナー
+        // iniファイル手動保存時のリスナー
         const saveDocumentListener = vscode.workspace.onDidSaveTextDocument((document) => {
           const savedFileName = document.fileName.split(/[\\/]/).pop() || '';
-          // 現在のファイルと一致している場合のみ再読み込み
-          if (savedFileName === fileName) {
+          // 最後に使用していたファイルと一致している場合のみ再読み込み
+          if (savedFileName === iniPerser.getFileName()) {
             const newText = document.getText();
-            iniPerser = new IniParser(fileName, newText);
+            iniPerser = new IniParser(savedFileName, newText);
             panel.webview.postMessage({
               command: 'init',
               data: {
@@ -108,7 +112,7 @@ export function activate(context: vscode.ExtensionContext) {
                 settings: iniPerser.getAllSettingsText()
               }
             });
-            vscode.window.showInformationMessage(`${fileName} was reloaded due to manual changes.`);
+            vscode.window.showInformationMessage(`${savedFileName} was reloaded due to manual changes.`);
           }
         });
         context.subscriptions.push(saveDocumentListener);

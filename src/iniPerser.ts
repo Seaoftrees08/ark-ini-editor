@@ -31,7 +31,10 @@ export class IniParser {
                     this.data.set(currentSection, []);
                 }
             } else if (currentSection) {
-                const [rawKey, rawValue] = line.split('=').map((s) => s.trim());
+                const index = line.indexOf('=');
+                if (index === -1) {return;}
+                const rawKey = line.slice(0, index).trim();
+                const rawValue = line.slice(index + 1).trim();
                 let value: number | boolean | string;
                 if (rawValue === 'True') {
                     value = true;
