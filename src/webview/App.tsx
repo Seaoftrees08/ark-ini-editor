@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IniParser } from "../iniPerser";
-import Checkbox from "./CheckBox";
+import Game from "./Game";
+import GameUserSettings from "./GameUserSettings";
 
 // VS Code API 型の宣言
 declare function acquireVsCodeApi(): {
@@ -13,7 +14,6 @@ const vscode = acquireVsCodeApi();
 
 const App = () => {
   const [iniData, setIniData] = useState<IniParser | undefined>(undefined);
-
   // iniファイルのテキストデータを拡張から受信する処理
   useEffect(() => {
     const messageHandler = (event: MessageEvent) => {
@@ -31,27 +31,33 @@ const App = () => {
     return () => window.removeEventListener("message", messageHandler);
   }, []);
 
-  //チェックボックス内でcheckedステートをオーバーライドして追加すること！
+  // チェックボックス内でcheckedステートをオーバーライドして追加すること！
   const checkBoxHandleChange = (section: string, key: string, newValue: boolean) => {
-    const ini = iniData;
-    iniData?.setValue(section, key, newValue ? "True" : "False");
-    setIniData(ini);
-    vscode?.postMessage?.({
-      command: "updateIni",
-      value: iniData?.getAllSettingsText(),
-    });
+    if (iniData) {
+      iniData.setValue(section, key, newValue ? "True" : "False");
+      setIniData(iniData);
+      vscode?.postMessage?.({
+        command: "updateIni",
+        value: iniData.getAllSettingsText(),
+      });
+    }
   };
 
   return (
     <div>
-      <h2>ARK Settings Game.ini</h2>
-      <Checkbox
-        iniData={iniData}
-        section="/script/shootergame.shootergamemode"
-        settingKey="bAllowUnlimitedRespecs"
-        onChange={checkBoxHandleChange}
-        description="trueに設定すると、24時間のクールダウンなしでMindwipe Tonicを複数回使用できます。"
-      />
+      {
+        iniData && iniData.getFileName().toLowerCase().endsWith("game.ini") ? (
+          <Game iniData={iniData} checkBoxHandleChange={checkBoxHandleChange} />
+        ) : iniData && iniData.getFileName().toLowerCase().endsWith("gameusersettings.ini") ? (
+          <GameUserSettings iniData={iniData} checkBoxHandleChange={checkBoxHandleChange} />
+        ) : (
+          <div>
+            <h2>Unsupported File</h2>
+            <p>Please open Game.ini or GameUserSettings.ini to use this extension.</p>
+          </div>
+        )
+      }
+
     </div>
   );
 };
