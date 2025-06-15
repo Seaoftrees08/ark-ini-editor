@@ -3,7 +3,6 @@ import Checkbox from "./CheckBox";
 import React from "react";
 import TextBox from "./TextBox";
 import Numeric from "./Numeric";
-import { text } from "stream/consumers";
 
 export interface GameUserSettingsProps {
   iniData: IniParser | undefined;
