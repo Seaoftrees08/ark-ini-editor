@@ -45,6 +45,9 @@ const App = () => {
 
   return (
     <div>
+      <p>
+        now open file: {iniData ? iniData.getFileName() : "Loading..."}
+      </p>
       {
         iniData && iniData.getFileName().toLowerCase().endsWith("game.ini") ? (
           <Game iniData={iniData} checkBoxHandleChange={checkBoxHandleChange} />

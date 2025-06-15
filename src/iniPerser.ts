@@ -8,10 +8,14 @@ export class IniParser {
   private fileName: string = '';
   // 各セクションは複数の設定項目（重複可能）を保持する
   private data: Map<string, IniEntry[]> = new Map();
+  private isIniFile: boolean = false;
 
   constructor(fileName: string, iniText: string) {
     this.fileName = fileName;
-    this.parse(iniText);
+    if(fileName.toLowerCase().endsWith('game.ini') || fileName.toLocaleLowerCase().endsWith("gameusersettings.ini")) {
+      this.isIniFile = true;
+      this.parse(iniText);
+    }
   }
 
   /**
@@ -108,9 +112,15 @@ export class IniParser {
   /**
    * 編集後のテキスト全文を取得します。
    * セクションごとにオリジナルの順序を保持します。
+   * 該当するiniファイルでない場合は空の文字列を返します。
    * @returns iniテキスト
    */
   getAllSettingsText(): string {
+
+    if (!this.isIniFile) {
+      return "";
+    }
+
     let result = '';
     // Map は挿入順を保持するのでそのまま利用
     this.data.forEach((entries, section) => {
