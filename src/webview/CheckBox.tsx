@@ -40,9 +40,9 @@ const Checkbox: React.FC<CheckboxProps> = ({ iniData, section, settingKey, onCha
         />
         {settingKey}
       </label>
-      <p>
-        {description}
-      </p>
+        <p style={{ marginTop: "-0.4em", marginLeft: "1.8em"}}>
+          {description}
+        </p>
     </div>
   );
 };
