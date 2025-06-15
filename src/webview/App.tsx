@@ -43,6 +43,17 @@ const App = () => {
     }
   };
 
+    const numbericHandleChange = (section: string, key: string, newValue: string) => {
+    if (iniData) {
+      iniData.setValue(section, key, newValue);
+      setIniData(iniData);
+      vscode?.postMessage?.({
+        command: "updateIni",
+        value: iniData.getAllSettingsText(),
+      });
+    }
+  };
+
   return (
     <div>
       <p>
@@ -50,9 +61,17 @@ const App = () => {
       </p>
       {
         iniData && iniData.getFileName().toLowerCase().endsWith("game.ini") ? (
-          <Game iniData={iniData} checkBoxHandleChange={checkBoxHandleChange} />
+          <Game 
+            iniData={iniData}
+            checkBoxHandleChange={checkBoxHandleChange}
+            numericHandleChange={numbericHandleChange}
+          />
         ) : iniData && iniData.getFileName().toLowerCase().endsWith("gameusersettings.ini") ? (
-          <GameUserSettings iniData={iniData} checkBoxHandleChange={checkBoxHandleChange} />
+          <GameUserSettings
+            iniData={iniData}
+            checkBoxHandleChange={checkBoxHandleChange}
+            numericHandleChange={numbericHandleChange}
+          />
         ) : (
           <div>
             <h2>Unsupported File</h2>

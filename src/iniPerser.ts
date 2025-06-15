@@ -5,141 +5,105 @@ interface IniEntry {
 }
 
 export class IniParser {
-  private fileName: string = '';
-  // 各セクションは複数の設定項目（重複可能）を保持する
-  private data: Map<string, IniEntry[]> = new Map();
-  private isIniFile: boolean = false;
+    private fileName: string = '';
+    private data: Map<string, IniEntry[]> = new Map();
+    private isIniFile: boolean = false;
 
-  constructor(fileName: string, iniText: string) {
-    this.fileName = fileName;
-    if(fileName.toLowerCase().endsWith('game.ini') || fileName.toLocaleLowerCase().endsWith("gameusersettings.ini")) {
-      this.isIniFile = true;
-      this.parse(iniText);
-    }
-  }
-
-  /**
-   * ini形式のテキストを解析して、内部データ構造に格納します。
-   * @param iniText 解析するini形式のテキスト
-   */
-  private parse(iniText: string): void {
-    const lines = iniText.split(/\r?\n/);
-    let currentSection = '';
-
-    lines.forEach((line) => {
-      line = line.trim();
-      if (!line || line.startsWith(';')) { return; } // コメント行を無視
-
-      // セクションヘッダ
-      if (line.startsWith('[') && line.endsWith(']')) {
-        currentSection = line.slice(1, -1);
-        if (!this.data.has(currentSection)) {
-          this.data.set(currentSection, []);
+    constructor(fileName: string, iniText: string) {
+        this.fileName = fileName;
+        if (fileName.toLowerCase().endsWith('game.ini') || fileName.toLowerCase().endsWith("gameusersettings.ini")) {
+            this.isIniFile = true;
+            this.parse(iniText);
         }
-      } else if (currentSection) {
-        const [rawKey, rawValue] = line.split('=').map((s) => s.trim());
-        let value: number | boolean | string;
-        if (rawValue === 'True') {
-          value = true;
-        } else if (rawValue === 'False') {
-          value = false;
-        } else if (!isNaN(Number(rawValue))) {
-          value = Number(rawValue);
-        } else {
-          value = rawValue;
+    }
+
+    private parse(iniText: string): void {
+        const lines = iniText.split(/\r?\n/);
+        let currentSection = '';
+
+        lines.forEach((line) => {
+            line = line.trim();
+            if (!line || line.startsWith(';')) { return; }
+
+            if (line.startsWith('[') && line.endsWith(']')) {
+                currentSection = line.slice(1, -1);
+                if (!this.data.has(currentSection)) {
+                    this.data.set(currentSection, []);
+                }
+            } else if (currentSection) {
+                const [rawKey, rawValue] = line.split('=').map((s) => s.trim());
+                let value: number | boolean | string;
+                if (rawValue === 'True') {
+                    value = true;
+                } else if (rawValue === 'False') {
+                    value = false;
+                } else if (!isNaN(Number(rawValue))) {
+                    value = Number(rawValue);
+                } else {
+                    value = rawValue;
+                }
+                this.data.get(currentSection)!.push({ key: rawKey, value, raw: rawValue });
+            }
+        });
+    }
+
+    getFileName(): string {
+        return this.fileName;
+    }
+
+    getValue(key: string, defaultValue: number | boolean | string): number | boolean | string {
+        let foundValue: number | boolean | string | undefined;
+        for (const entries of this.data.values()) {
+            for (const entry of entries) {
+                if (entry.key === key) {
+                    foundValue = entry.raw !== undefined ? entry.raw : entry.value;
+                }
+            }
         }
-        // 読み込んだ文字列（元の表現）も保持する
-        this.data.get(currentSection)!.push({ key: rawKey, value, raw: rawValue });
-      }
-    });
-  }
+        return foundValue !== undefined ? foundValue : defaultValue;
+    }
 
-  /**
-   * ファイル名を取得します。
-   * @returns ファイル名
-   */
-  getFileName(): string {
-    return this.fileName;
-  }
-
-  /**
-   * 全セクションから指定されたキーの最新の値を取得します。
-   * 複数存在する場合、後に出現した値を返します。
-   * @param key 設定項目のキー
-   * @param defaultValue キーが存在しない場合のデフォルト値
-   * @returns 設定値
-   */
-  getValue(key: string, defaultValue: number | boolean | string): number | boolean | string {
-    let foundValue: number | boolean | string | undefined;
-    for (const entries of this.data.values()) {
-      for (const entry of entries) {
-        if (entry.key === key) {
-          foundValue = entry.value;
+    setValue(section: string, key: string, value: number | boolean | string): void {
+        if (!this.data.has(section)) {
+            this.data.set(section, []);
         }
-      }
-    }
-    return foundValue !== undefined ? foundValue : defaultValue;
-  }
-
-  /**
-   * 指定されたセクションのキーに対応する値を更新します。
-   * 同じキーが複数存在する場合、全て更新します。
-   * 存在しない場合は新規項目を追加します。
-   * @param section セクション名
-   * @param key 設定する項目名
-   * @param value 設定値
-   */
-  setValue(section: string, key: string, value: number | boolean | string): void {
-    if (!this.data.has(section)) {
-      this.data.set(section, []);
-    }
-    const entries = this.data.get(section)!;
-    let updated = false;
-    for (let entry of entries) {
-      if (entry.key === key) {
-        entry.value = value;
-        // 更新時は元のフォーマット情報はなくなる
-        delete entry.raw;
-        updated = true;
-      }
-    }
-    // 存在しない場合は新規追加
-    if (!updated) {
-      entries.push({ key, value });
-    }
-  }
-
-  /**
-   * 編集後のテキスト全文を取得します。
-   * セクションごとにオリジナルの順序を保持します。
-   * 該当するiniファイルでない場合は空の文字列を返します。
-   * @returns iniテキスト
-   */
-  getAllSettingsText(): string {
-
-    if (!this.isIniFile) {
-      return "";
-    }
-
-    let result = '';
-    // Map は挿入順を保持するのでそのまま利用
-    this.data.forEach((entries, section) => {
-      result += `[${section}]\n`;
-      entries.forEach((entry) => {
-        let valueText: string;
-        if (entry.raw !== undefined) {
-          valueText = entry.raw;
-        } else if (typeof entry.value === 'boolean') {
-          valueText = entry.value ? 'True' : 'False';
-        } else {
-          valueText = entry.value.toString();
+        const entries = this.data.get(section)!;
+        let updated = false;
+        for (let entry of entries) {
+            if (entry.key === key) {
+                entry.value = typeof value === "string" ? value : value.toString();
+                // raw値として文字列表現を保持する
+                entry.raw = value.toString();
+                updated = true;
+            }
         }
-        result += `${entry.key}=${valueText}\n`;
-      });
-      result += `\n`;
-    });
-    return result.trim();
-  }
+        if (!updated) {
+            entries.push({ key, value: typeof value === "string" ? value : value.toString(), raw: value.toString() });
+        }
+    }
+
+    getAllSettingsText(): string {
+        if (!this.isIniFile) {
+            return "";
+        }
+        let result = '';
+        this.data.forEach((entries, section) => {
+            result += `[${section}]\n`;
+            entries.forEach((entry) => {
+                let valueText: string;
+                if (entry.raw !== undefined) {
+                    valueText = entry.raw;
+                } else if (typeof entry.value === 'boolean') {
+                    valueText = entry.value ? 'True' : 'False';
+                } else {
+                    valueText = entry.value.toString();
+                }
+                result += `${entry.key}=${valueText}\n`;
+            });
+            result += `\n`;
+        });
+        return result.trim();
+    }
 }
 
 // // 使用例

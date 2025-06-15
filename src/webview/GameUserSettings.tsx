@@ -5,9 +5,10 @@ import React from "react";
 export interface GameUserSettingsProps {
 	iniData: IniParser | undefined;
 	checkBoxHandleChange: (section: string, key: string, newValue: boolean) => void;
+    numericHandleChange: (section: string, key: string, newValue: string) => void;
 }
 
-const GameUserSettings: React.FC<GameUserSettingsProps> = ({ iniData, checkBoxHandleChange }) => {
+const GameUserSettings: React.FC<GameUserSettingsProps> = ({ iniData, checkBoxHandleChange, numericHandleChange }) => {
 	return(
 		<div>
 			<h2>ARK Settings Game.ini</h2>
