@@ -72,28 +72,47 @@ export function activate(context: vscode.ExtensionContext) {
             edit.replace(document.uri, fullRange, editedText);
             await vscode.workspace.applyEdit(edit);
             
-            vscode.window.showInformationMessage(`Updated ${fileName} successfully!`);
+            // vscode.window.showInformationMessage(`Updated ${fileName} successfully!`);
           }
         });
 
-        // アクティブエディターが変わった時に、iniPerserを再生成しWebviewに更新を通知する機能を追加
+        // アクティブエディターが変わった時のリスナー
         const activeEditorListener = vscode.window.onDidChangeActiveTextEditor((newEditor) => {
           if (newEditor) {
             const newFilePath = newEditor.document.fileName;
-              const newFileName = newFilePath.split(/[\\/]/).pop() || '';
-              const newText = newEditor.document.getText();
-              iniPerser = new IniParser(newFileName, newText);
-              panel.webview.postMessage({
-                command: 'init',
-                data: {
-                  fileName: iniPerser.getFileName(),
-                  settings: iniPerser.getAllSettingsText()
-                }
-              });
+            const newFileName = newFilePath.split(/[\\/]/).pop() || '';
+            const newText = newEditor.document.getText();
+            iniPerser = new IniParser(newFileName, newText);
+            panel.webview.postMessage({
+              command: 'init',
+              data: {
+                fileName: iniPerser.getFileName(),
+                settings: iniPerser.getAllSettingsText()
+              }
+            });
           }
         });
         context.subscriptions.push(activeEditorListener);
 
+        // iniファイルが手動で保存された際にiniPerserを再生成するリスナー
+        const saveDocumentListener = vscode.workspace.onDidSaveTextDocument((document) => {
+          const savedFileName = document.fileName.split(/[\\/]/).pop() || '';
+          // 現在のファイルと一致している場合のみ再読み込み
+          if (savedFileName === fileName) {
+            const newText = document.getText();
+            iniPerser = new IniParser(fileName, newText);
+            panel.webview.postMessage({
+              command: 'init',
+              data: {
+                fileName: iniPerser.getFileName(),
+                settings: iniPerser.getAllSettingsText()
+              }
+            });
+            vscode.window.showInformationMessage(`${fileName} was reloaded due to manual changes.`);
+          }
+        });
+        context.subscriptions.push(saveDocumentListener);
+        
     });
     context.subscriptions.push(akrsettingsDisposable);
 

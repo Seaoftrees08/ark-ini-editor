@@ -55,7 +55,7 @@ const Numeric: React.FC<NumericProps> = ({
           pattern="^\d*\.?\d*$"
           value={inputValue}
           onChange={handleChange}
-          style={{ marginRight: "0.5em", width: "4em", backgroundColor: "#333333", color: "#FFFFFF" }}
+          style={{ marginRight: "0.5em", width: "6em", backgroundColor: "#333333", color: "#FFFFFF" }}
         />
         {settingKey}
       </label>
