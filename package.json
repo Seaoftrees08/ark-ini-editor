@@ -2,6 +2,7 @@
   "name": "ark-ini-editor",
   "displayName": "ark-ini-editor",
   "description": "Edit Game.ini and GameUserSettings.ini in GUI for ARK Survival Evolved.",
+  "publisher": "Seaoftrees08",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.101.0"
