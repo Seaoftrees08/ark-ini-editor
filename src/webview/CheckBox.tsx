@@ -43,7 +43,8 @@ const Checkbox: React.FC<CheckboxProps> = ({ iniData, section, settingKey, defau
           {settingKey}
         </span>
       </label>
-      <p style={{ marginTop: "-0.4em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>
+      <p style={{ marginTop: "-0.2em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>初期値：{defaultValue}</p>
+      <p style={{ marginTop: "-0.9em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>
         {description}
       </p>
     </div>

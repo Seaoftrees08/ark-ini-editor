@@ -44,6 +44,7 @@ const TextBox: React.FC<TextBoxProps> = ({
         <span style={{ color: "#FFFFFF", fontSize: "1.2em" }}>
           {settingKey}
         </span>
+        &ensp;
         <input
           type="text"
           value={inputValue}
@@ -51,7 +52,8 @@ const TextBox: React.FC<TextBoxProps> = ({
           style={{ marginRight: "0.5em", width: "12em", backgroundColor: "#333333", color: "#C0C0C0" }}
         />
       </label>
-      <p style={{ marginTop: "-0.2em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>{description}</p>
+      <p style={{ marginTop: "-0.2em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>初期値：{defaultValue}</p>
+      <p style={{ marginTop: "-0.9em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>{description}</p>
     </div>
   );
 };

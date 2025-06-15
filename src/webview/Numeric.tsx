@@ -52,6 +52,7 @@ const Numeric: React.FC<NumericProps> = ({
         <span style={{ color: "#FFFFFF", fontSize: "1.2em" }}>
           {settingKey}
         </span>
+        &ensp;
         <input
           type="text"
           // pattern属性は入力支援のために残しています
@@ -61,7 +62,8 @@ const Numeric: React.FC<NumericProps> = ({
           style={{ marginRight: "0.5em", width: "6em", backgroundColor: "#333333", color: "#C0C0C0" }}
         />
       </label>
-      <p style={{ marginTop: "-0.2em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>{description}</p>
+      <p style={{ marginTop: "-0.2em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>初期値：{defaultValue}</p>
+      <p style={{ marginTop: "-0.9em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>{description}</p>
     </div>
   );
 };
