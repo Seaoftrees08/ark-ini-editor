@@ -4,7 +4,7 @@ import { IniParser } from "../iniPerser";
 export interface TextBoxProps {
   iniData: IniParser | undefined;
   section: string;
-  defaultValue: number;
+  defaultValue: string;
   settingKey: string;
   onChange: (section: string, key: string, newValue: string) => void;
   description: string;
@@ -41,15 +41,17 @@ const TextBox: React.FC<TextBoxProps> = ({
       <label
         style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
       >
+        <span style={{ color: "#FFFFFF", fontSize: "1.2em" }}>
+          {settingKey}
+        </span>
         <input
           type="text"
           value={inputValue}
           onChange={handleChange}
-          style={{ marginRight: "0.5em", width: "12em", backgroundColor: "#333333", color: "#FFFFFF" }}
+          style={{ marginRight: "0.5em", width: "12em", backgroundColor: "#333333", color: "#C0C0C0" }}
         />
-        {settingKey}
       </label>
-      <p style={{ marginTop: "-0.3em", marginLeft: "1.8em" }}>{description}</p>
+      <p style={{ marginTop: "-0.2em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>{description}</p>
     </div>
   );
 };

@@ -124,6 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {}
 
+//style.cssは現在未使用
 function getWebviewContent(styleUri: vscode.Uri, scriptUri: vscode.Uri): string {
   return `
   <!DOCTYPE html>
@@ -131,7 +132,7 @@ function getWebviewContent(styleUri: vscode.Uri, scriptUri: vscode.Uri): string 
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link href="${styleUri}" rel="stylesheet" />
+      <!-- <link href="${styleUri}" rel="stylesheet" /> -->
       <title>ARK Settings</title>
     </head>
     <body>

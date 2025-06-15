@@ -17,6 +17,7 @@ const Game: React.FC<GameProps> = ({ iniData, checkBoxHandleChange, textHandleCh
                 iniData={iniData}
                 section="/script/shootergame.shootergamemode"
                 settingKey="bAllowUnlimitedRespecs"
+                defaultValue={false}
                 onChange={checkBoxHandleChange}
                 description="trueに設定すると、24時間のクールダウンなしでMindwipe Tonicを複数回使用できます。"
             />

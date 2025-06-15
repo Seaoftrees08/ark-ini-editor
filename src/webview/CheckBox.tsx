@@ -5,14 +5,15 @@ export interface CheckboxProps {
   iniData: IniParser | undefined;
   section: string;
   settingKey: string;
+  defaultValue: boolean;
   onChange: (section: string, key: string, newValue: boolean) => void;
   description: string;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ iniData, section, settingKey, onChange, description }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ iniData, section, settingKey, defaultValue, onChange, description }) => {
   // boolean型もしくは文字列で "True" をチェックする
   const getCheckedValue = (): boolean => {
-    const val = iniData?.getValue(settingKey, "False");
+    const val = iniData?.getValue(settingKey, defaultValue);
     return val === true || val === "True";
   };
 
@@ -38,11 +39,13 @@ const Checkbox: React.FC<CheckboxProps> = ({ iniData, section, settingKey, onCha
           onChange={handleChange}
           style={{ marginRight: "0.5em" }}
         />
-        {settingKey}
+        <span style={{ color: "#FFFFFF", fontSize: "1.2em" }}>
+          {settingKey}
+        </span>
       </label>
-        <p style={{ marginTop: "-0.4em", marginLeft: "1.8em"}}>
-          {description}
-        </p>
+      <p style={{ marginTop: "-0.4em", marginLeft: "1.8em", maxWidth: "90%", color: "#AAAAAA" }}>
+        {description}
+      </p>
     </div>
   );
 };
