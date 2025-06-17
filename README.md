@@ -17,6 +17,9 @@ ARK Server Managerが死んだので作りました。
 
 
 # Update
-- 0.0.1 公開
-- 0.0.2 画面が表示されない問題を修正
+- 0.0.4 GameUserSettings.iniに「ARK: Homestead specific」の項目が抜けてたため追加
 - 0.0.3 READMEのアップデート
+- 0.0.2 画面が表示されない問題を修正
+- 0.0.1 公開
+
+

@@ -691,6 +691,42 @@ const GameUserSettings: React.FC<GameUserSettingsProps> = ({
         description="false = 無効 (火山は活発になりません), 有効 = enabled"
       />
 
+      <Checkbox
+        iniData={iniData}
+        section="ServerSettings"
+        settingKey="AlwaysAllowStructurePickup"
+        defaultValue={false}
+        onChange={checkBoxHandleChange}
+        description="trueの場合、クイックピックアップシステムのタイマーが無効になります"
+      />
+
+      <Numeric
+        iniData={iniData}
+        section="ServerSettings"
+        defaultValue={30.0}
+        settingKey="StructurePickupTimeAfterPlacement"
+        onChange={textHandleChange}
+        description="クイックピックアップが利用可能な配置後の秒数"
+      />
+
+      <Checkbox
+        iniData={iniData}
+        section="ServerSettings"
+        settingKey="AllowIntegratedSPlusStructures"
+        defaultValue={true}
+        onChange={checkBoxHandleChange}
+        description="falseの場合、すべての新しいS+建造物が無効になります（主に、S+ modバージョンを使用し続けたい非公式者が、余分な重複構造なしでそれを使用し続けることを目的としています）"
+      />
+
+      <Numeric
+        iniData={iniData}
+        section="ServerSettings"
+        defaultValue={0.5}
+        settingKey="StructurePickupHoldDuration"
+        onChange={textHandleChange}
+        description="クイックピックアップのホールド期間を指定するために使用します。0を使用して、無効にしてインスタントピックアップを使用します"
+      />
+
     </div>
   );
 };
